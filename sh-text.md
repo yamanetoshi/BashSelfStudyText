@@ -1811,7 +1811,7 @@ C言語を憶えたてのころに見たことがある方もたくさんいる�
 ## 概要
 
 キャビネットから物を捜したり、出し入れしたりといったことを真似ていますので
-名前もそのものズバリ  Cabinet} です。実際のキャビネットに収められている
+名前もそのものズバリ  Cabinet です。実際のキャビネットに収められている
 物は文献やビデオなど多種多様です。違った種類のものを詰め込むような設計にもできます。
 初心者にも分かりやすいようにできるだけ簡素な構成の方が良いでしょうから、
 文献検索用に目的を限定します。
@@ -1833,30 +1833,28 @@ minix のツール類が扱いやすい形式は違います。
 します。１つの文献を「著者」「標題」「出版社」「出版年」「ISBN」から
 なるデータの集合で表すとします。さて、あなたは(a)と(b)のどちらが扱い易いで
 しょうか。
-\begin{footnotesize}
-\begin{quote}
-(a) \\
-Andrew S.Tanenbaum \\
-OPERATING SYSTEMS DESIGN AND IMPLEMENTATION \\
-Prentice-Hall \\
-1987 \\
-0-13-637331-3 \\
- \\
-Andrew S.Tanenbaum \\
-COMPUTER NETWORKS \\
-Prentice-Hall \\
-1981 \\
-0-13-165183-8 \\
- \\
- \\
-(b) \\
-Alan Deikman:UNIX PROGRAMMING ON THE 80286 80386:M \& T Publishing, $\cdots$ \\
-Alfred V.Aho, Brian W.Kernighan, Peter J.Weinberger:The AWK Progra$\cdots$ \\
-Allen I.Holub:COMPILER DESIGN IN C:Prentice-Hall:1990:0-13-155045-4$\cdots$ \\
-Andrew S.Tanenbaum:COMPUTER NETWORKS:Prentice-Hall:1981:0-13-165183$\cdots$ \\
-Andrew S.Tanenbaum:OPERATING SYSTEMS DESIGN AND IMPLEMENTATION:Pren$\cdots$ \\
-\end{quote}
-\end{footnotesize}
+
+    (a)
+    Andrew S.Tanenbaum
+    OPERATING SYSTEMS DESIGN AND IMPLEMENTATION
+    Prentice-Hall
+    1987
+    0-13-637331-3
+    
+    Andrew S.Tanenbaum
+    COMPUTER NETWORK
+    Prentice-Hall
+    1981
+    0-13-165183-8
+    
+    
+    (b)
+    Alan Deikman:UNIX PROGRAMMING ON THE 80286 80386:M \& T Publishing, $\cdots$
+    Alfred V.Aho, Brian W.Kernighan, Peter J.Weinberger:The AWK Progra$\cdots$
+    Allen I.Holub:COMPILER DESIGN IN C:Prentice-Hall:1990:0-13-155045-4$\cdots$
+    Andrew S.Tanenbaum:COMPUTER NETWORKS:Prentice-Hall:1981:0-13-165183$\cdots$
+    Andrew S.Tanenbaum:OPERATING SYSTEMS DESIGN AND IMPLEMENTATION:Pren$\cdots$
+
 よほどのアマノジャクでない限り人間が扱い易いデータ形式は(a)の方だろうと
 思います。一方、(b)は minix 上のコマンド群が扱いを得意としているものです。
 
@@ -1869,7 +1867,7 @@ Andrew S.Tanenbaum:OPERATING SYSTEMS DESIGN AND IMPLEMENTATION:Pren$\cdots$ \\
 
 
 
-##  Cabinet}の部品}
+##  Cabinetの部品
 
 それではこのためにどのような部品を用意すればよいでしょうか。データの入力、
 検索、出力と分けて考えてみます。
@@ -1881,373 +1879,334 @@ ed, mined, elle, vi などから好きなものを使うことにし、(a)から
 フィールドがコロン「:」で区切られているので  IFS} を切り換えて
 各々のフィールド取り出し echo で表示させます。
 この方針で次のような５つのスクリプトを用意してみました。
-\begin{quote}
-\begin{tabular}{ll}
-1. add & - 文献データ追加用のスクリプト \\
-2. upd & - 検索用データファイルの更新スクリプト \\
-3. all & - 全文献データの表示のスクリプト \\
-4. se  & - 文献検索スクリプト \\
-5. cab & - メニュー処理 \\
-\end{tabular}
-\end{quote}
+
++ add & - 文献データ追加用のスクリプト
++ upd & - 検索用データファイルの更新スクリプト
++ all & - 全文献データの表示のスクリプト
++ se  & - 文献検索スクリプト
++ cab & - メニュー処理
 
 
-\vspace{5mm}
-##  Cabinet}のスクリプト}
+##  Cabinetのスクリプト
 
-###  add} - 文献データ追加}
+###  add - 文献データ追加
 
 引数として検索用データに新しい文献データをデータ形式(a)で書き込んだ
 ファイル名を与えることにより追加できます。
 もし、引数がない場合はコンソールから文献データを１件だけ取り込みます。
-\begin{listings}
-\item \verb@#!/bin/sh@
-\item \verb@#        ADD data to the Cabinet File@
-\item \verb@@
-\item \verb@: ${CABINET?}@
-\item \verb@ORG=$CABINET@
-\item \verb@REC="Auther Title Publisher Year ISBN"@
-\item \verb@@
-\item \verb@if test -z "$CABINET"; then@
-\item \verb@        exit@
-\item \verb@fi@
-\item \verb@@
-\item \verb@if test $# -ne 0; then@
-\item \verb@        for i ; do@
-\item \verb@                if test -f "$i"; then@
-\item \verb@                        continue@
-\item \verb@                else@
-\item \verb@                        echo "Error: \'$i\' dose not exist."@
-\item \verb@                        exit@
-\item \verb@                fi@
-\item \verb@        done@
-\item \verb@        if test -f "$ORG"; then@
-\item \verb@                cp $ORG ${ORG}.bak@
-\item \verb@        fi@
-\item \verb@        for i ; do@
-\item \verb@                echo >> $ORG@
-\item \verb@                cat $i >> $ORG@
-\item \verb@                echo "\'$i\' has been added to the $CABINET Cabinet"@
-\item \verb@        done@
-\item \verb@        upd@
-\item \verb@else@
-\item \verb@        echo "Type in NEW data"@
-\item \verb@        for i in $REC; do@
-\item \verb@                echo -n "$i --> "@
-\item \verb@                read line@
-\item \verb@                eval $i=\"\$line\"@
-\item \verb@        done@
-\item \verb@        echo '----------------------------'@
-\item \verb@        for i in $REC; do@
-\item \verb@                eval echo \"$i\: \$$i\"@
-\item \verb@        done@
-\item \verb@        echo '----------------------------'@
-\item \verb@        echo -n '                Ok? (y/n) '@
-\item \verb@        read line@
-\item \verb@        if test "$line" = y -o "$line" = Y; then@
-\item \verb@                echo >> $ORG@
-\item \verb@                for i in $REC; do@
-\item \verb@                        eval echo \"\$$i\"@
-\item \verb@                done >> $ORG@
-\item \verb@                echo@
-\item \verb@                echo "This data has been added to the $CABINET cabinet."@
-\item \verb@                upd@
-\item \verb@        fi@
-\item \verb@fi@
-\end{listings}
-%\vspace{5mm}
+
+    #!/bin/sh
+    #        ADD data to the Cabinet File
+    
+    : ${CABINET?}
+    ORG=$CABINET
+    REC="Auther Title Publisher Year ISBN"
+    
+    if test -z "$CABINET"; then
+            exit
+    fi
+    
+    if test $# -ne 0; then
+            for i ; do
+                    if test -f "$i"; then
+                            continue
+                    else
+                            echo "Error: \'$i\' dose not exist."
+                            exit
+                    fi
+            done
+            if test -f "$ORG"; then
+                    cp $ORG ${ORG}.bak
+            fi
+            for i ; do
+                    echo >> $ORG
+                    cat $i >> $ORG
+                    echo "\'$i\' has been added to the $CABINET Cabinet"
+            done
+            upd
+    else
+            echo "Type in NEW data"
+            for i in $REC; do
+                    echo -n "$i --> "
+                    read line
+                    eval $i=\"\$line\"
+            done
+            echo '----------------------------'
+            for i in $REC; do
+                    eval echo \"$i\: \$$i\"
+            done
+            echo '----------------------------'
+            echo -n '                Ok? (y/n) '
+            read line
+            if test "$line" = y -o "$line" = Y; then
+                    echo >> $ORG
+                    for i in $REC; do
+                            eval echo \"\$$i\"
+                    done >> $ORG
+                    echo
+                    echo "This data has been added to the $CABINET cabinet."
+                    upd
+            fi
+    fi
+
 
 % ---------------------------------------------------------------------------
-###  upd} - 検索データの更新}
+###  upd - 検索データの更新
 
 人間による入力データは作業性を考えて複数行で１レコードを構成していますが、
 minix のコマンドは１行で１つのレコードを構成するものを扱うように設計されて
 います。そのための変換を行ない、検索用のデータファイルの更新を行ないます。
-このスクリプトは入力用のスクリプト  add} から呼び出されます。
-\begin{listings}
-\item \verb@#!/bin/sh@
-\item \verb@#         update cabinet@
-\item \verb@@
-\item \verb@: ${CABINET?}@
-\item \verb@RACK=${CABINET}.items@
-\item \verb@TMP=/tmp/_$$@
-\item \verb@trap 'rm -f $TMP' 0 2@
-\item \verb@@
-\item \verb@echo -n "Now, updating $CABINET cabinet. Just a minute, Please!"@
-\item \verb@lbuf=""@
-\item \verb@> $TMP@
-\item \verb@cat $CABINET | while read line; do@
-\item \verb@        if test "$line" = ""; then@
-\item \verb@                if test -n "$lbuf"; then@
-\item \verb@                        echo $lbuf >> $TMP@
-\item \verb@                        lbuf=""@
-\item \verb@                fi@
-\item \verb@        else@
-\item \verb@                if test "$lbuf" = ""; then@
-\item \verb@                        lbuf=$line@
-\item \verb@                else@
-\item \verb@                        lbuf="$lbuf:$line"@
-\item \verb@                fi@
-\item \verb@        fi@
-\item \verb@done@
-\item \verb@if test -n "$lbuf"; then@
-\item \verb@        echo $lbuf >> $TMP@
-\item \verb@fi@
-\item \verb@echo@
-\item \verb@sort -fut':' +0.0 -2.0 $TMP > $RACK@
-\end{listings}
-%\vspace{5mm}
+このスクリプトは入力用のスクリプト add から呼び出されます。
 
-% ----------------------------------------------------------------------------
-%\newpage
-###  all} - 全文献の表示}
+    #!/bin/sh
+    #         update cabinet
+    
+    : ${CABINET?}
+    RACK=${CABINET}.items
+    TMP=/tmp/_$$
+    trap 'rm -f $TMP' 0 2
+    
+    echo -n "Now, updating $CABINET cabinet. Just a minute, Please!"
+    lbuf=""
+    > $TMP
+    cat $CABINET | while read line; do
+            if test "$line" = ""; then
+                    if test -n "$lbuf"; then
+                            echo $lbuf >> $TMP
+                            lbuf=""
+                    fi
+            else
+                    if test "$lbuf" = ""; then
+                            lbuf=$line
+                    else
+                            lbuf="$lbuf:$line"
+                    fi
+            fi
+    done
+    if test -n "$lbuf"; then
+            echo $lbuf >> $TMP
+    fi
+    echo
+    sort -fut':' +0.0 -2.0 $TMP > $RACK
+
+###  all - 全文献の表示
 
 80桁のコンソールでも読み易いように３行で１件のデータを表示させています。
 データの出力先は標準出力ですからパイプで more などのページャにつなげば
 ページ単位で停止させられますし、lpr を指定すればプリンタに出力できます。
 
-\begin{listings}
-\item \verb@#!/bin/sh@
-\item \verb@#        LIST all of the entries in the Cabinet File@
-\item \verb@@
-\item \verb@: ${CABINET?}@
-\item \verb@RACK=${CABINET}.items@
-\item \verb@@
-\item \verb@if test ! -s "$RACK"; then@
-\item \verb@        echo 'Empty Cabinet.'@
-\item \verb@        exit@
-\item \verb@fi@
-\item \verb@@
-\item \verb@echo "  `wc -l < $RACK` item(s) in your Cabinet."@
-\item \verb@IFS=:@
-\item \verb@cat $RACK | while read A B C D E; do@
-\item \verb@        echo; echo $B@
-\item \verb@        echo $A@
-\item \verb@        echo "$C, $D(ISBN:$E)"@
-\item \verb@done@
-\item \verb@echo@
-\end{listings}
-%\vspace{5mm}
+    #!/bin/sh
+    #        LIST all of the entries in the Cabinet File
+    
+    : ${CABINET?}
+    RACK=${CABINET}.items
+    
+    if test ! -s "$RACK"; then
+            echo 'Empty Cabinet.'
+            exit
+    fi
+    
+    echo "  `wc -l < $RACK` item(s) in your Cabinet."
+    IFS=:
+    cat $RACK | while read A B C D E; do
+            echo; echo $B
+            echo $A
+            echo "$C, $D(ISBN:$E)"
+    done
+    echo
 
-% ------------------------------------------------------------------------------
-%\newpage
-###  se} - 文献の検索}
+###  se - 文献の検索
 
 引数として与えられた文字列の条件を満たす文献すべてを探し出します。
 検索キーワード文字列には正規表現が使えます。
 
-\begin{listings}
-\item \verb@#!/bin/sh@
-\item \verb@#        SEarch data in the Cabinet File @
-\item \verb@@
-\item \verb@: ${CABINET?}@
-\item \verb@RACK=${CABINET}.items@
-\item \verb@TMP=/tmp/_$$@
-\item \verb@@
-\item \verb@trap 'rm $TMP; echo; exit' 0 2@
-\item \verb@@
-\item \verb@if test $# -eq 0 -o -z "$CABINET" -o ! -f "$RACK"; then@
-\item \verb@        exit@
-\item \verb@fi@
-\item \verb@@
-\item \verb@echo -n "looking for \'$*\' .."@
-\item \verb@grep "$*" $RACK > $TMP@
-\item \verb@@
-\item \verb@if test -s "$TMP"; then@
-\item \verb@        echo "    `wc -l < $TMP` item(s)"@
-\item \verb@        IFS=:@
-\item \verb@        cat $TMP | while read A B C D E; do@
-\item \verb@                echo; echo $B@
-\item \verb@                echo $A@
-\item \verb@                echo "$C, $D(ISBN:$E)"@
-\item \verb@        done@
-\item \verb@        echo@
-\item \verb@else@
-\item \verb@        echo " Sorry, I can\'t find in the $CABINET Cabinet"@
-\item \verb@fi@
-\end{listings}
-%\vspace{5mm}
-% ------------------------------------------------------------------------------
+    #!/bin/sh
+    #        SEarch data in the Cabinet File 
+    
+    : ${CABINET?}
+    RACK=${CABINET}.items
+    TMP=/tmp/_$$
+    
+    trap 'rm $TMP; echo; exit' 0 2
+    
+    if test $# -eq 0 -o -z "$CABINET" -o ! -f "$RACK"; then
+            exit
+    fi
+    
+    echo -n "looking for \'$*\' .."
+    grep "$*" $RACK > $TMP
+    
+    if test -s "$TMP"; then
+            echo "    `wc -l < $TMP` item(s)"
+            IFS=:
+            cat $TMP | while read A B C D E; do
+                    echo; echo $B
+                    echo $A
+                    echo "$C, $D(ISBN:$E)"
+            done
+            echo
+    else
+            echo " Sorry, I can\'t find in the $CABINET Cabinet"
+    fi
 
-%\newpage
-###  cab} - {\bf Cabinet}メニュー}
+###  cab - Cabinetメニュー
 
- add},  upd},  all},  se} は部品として作られており、
+add, upd, all, se は部品として作られており、
 単独で走らせることができます。
 初心者にとってはメニューの方がなじみやすいでしょうから、
 メニュー画面で数字で指定することにより５つの作業ができるようにしてみました。
 
-\begin{listings}
-\item \verb@#!/bin/sh@
-\item \verb@#@
-\item \verb@@
-\item \verb@: ${CABINET=Book}@
-\item \verb@export CABINET@
-\item \verb@OUTPUT=more@
-\item \verb@OUT=Display@
-\item \verb@RACK=items@
-\item \verb@@
-\item \verb@trap 'continue' 2@
-\item \verb@@
-\item \verb@if test $# -ne 0; then@
-\item \verb@        if test -d $1; then@
-\item \verb@                CABINET=$1@
-\item \verb@        else@
-\item \verb@                exit@
-\item \verb@        fi@
-\item \verb@fi@
-\item \verb@@
-\item \verb@while true ;do@
-\item \verb@        echo; echo; echo -n "@
-\item \verb@        $CABINET Cabinet  .. `wc -l < ${CABINET}.items` item(s)@
-\item \verb@      ==================================================@
-\item \verb@        Would you like to:@
-\item \verb@@
-\item \verb@                1) Search data in the Cabinet@
-\item \verb@                2) Add data to the Cabinet@
-\item \verb@                3) List all of the Cabinet@
-\item \verb@                4) Change output (current: $OUT)@
-\item \verb@                5) Quit@
-\item \verb@      ==================================================@
-\item \verb@                                SELECT (1-5): "@
-\item \verb@        read command@
-\item \verb@        echo@
-\item \verb@        case "$command" in@
-\item \verb@                1 | s)  echo -n '[SEARCH] Enter Keyword: '@
-\item \verb@                        read line@
-\item \verb@                        if test ! -z "$line"; then@
-\item \verb@                            se "$line" | "$OUTPUT"@
-\item \verb@                            if test "$OUT" = Display; then@
-\item \verb@                                echo '>>> Hit ENTER to continue <<<'@
-\item \verb@                                read line@
-\item \verb@                            fi@
-\item \verb@                        fi;;@
-\item \verb@@
-\item \verb@                2 | a)  echo -n '[ADD] Enter filename: '@
-\item \verb@                        read line@
-\item \verb@                        if test -z "$line"; then@
-\item \verb@                            add@
-\item \verb@                        else@
-\item \verb@                            add "$line"@
-\item \verb@                        fi;;@
-\item \verb@@
-\item \verb@                3 | l)  echo '[ALL]'@
-\item \verb@                        all | $OUTPUT;;@
-\item \verb@@
-\item \verb@                4 | c)  if test "$OUT" = Display; then@
-\item \verb@                            OUTPUT=lpr; OUT=Printer@
-\item \verb@                        else@
-\item \verb@                            OUTPUT=more; OUT=Display@
-\item \verb@                        fi;;@
-\item \verb@@
-\item \verb@                5 | q)  exit;;@
-\item \verb@                *)      echo "??? \'$command\'";;@
-\item \verb@        esac@
-\item \verb@done@
-\end{listings}
-%\vspace{5mm}
-% ------------------------------------------------------------------------------
-%\newpage
+    #!/bin/sh
+    #
+    
+    : ${CABINET=Book}
+    export CABINET
+    OUTPUT=more
+    OUT=Display
+    RACK=items
+    
+    trap 'continue' 2
+    
+    if test $# -ne 0; then
+            if test -d $1; then
+                    CABINET=$1
+            else
+                    exit
+            fi
+    fi
+    
+    while true ;do
+            echo; echo; echo -n "
+            $CABINET Cabinet  .. `wc -l < ${CABINET}.items` item(s)
+          ==================================================
+            Would you like to:
+    
+                    1) Search data in the Cabinet
+                    2) Add data to the Cabinet
+                    3) List all of the Cabinet
+                    4) Change output (current: $OUT)
+                    5) Quit
+          ==================================================
+                                    SELECT (1-5): "
+            read command
+            echo
+            case "$command" in
+                    1 | s)  echo -n '[SEARCH] Enter Keyword: '
+                            read line
+                            if test ! -z "$line"; then
+                                se "$line" | "$OUTPUT"
+                                if test "$OUT" = Display; then
+                                    echo '>>> Hit ENTER to continue <<<'
+                                    read line
+                                fi
+                            fi;;
+    
+                    2 | a)  echo -n '[ADD] Enter filename: '
+                            read line
+                            if test -z "$line"; then
+                                add
+                            else
+                                add "$line"
+                            fi;;
+    
+                    3 | l)  echo '[ALL]'
+                            all | $OUTPUT;;
+    
+                    4 | c)  if test "$OUT" = Display; then
+                                OUTPUT=lpr; OUT=Printer
+                            else
+                                OUTPUT=more; OUT=Display
+                            fi;;
+    
+                    5 | q)  exit;;
+                    *)      echo "??? \'$command\'";;
+            esac
+    done
 
+##  Cabinetの使い方
 
-##  Cabinet}の使い方}
-
- Cabinet} は初心者の学習用として作った文献検索用のシェルスクリプトです。
+Cabinet は初心者の学習用として作った文献検索用のシェルスクリプトです。
 使用方法についてはスクリプトを読んでいただければ一目瞭然ですし、それがまた
 シェルスクリプト理解への近道でしょう。さらに新しい機能を追加するなどして、
 実際に手を加えてみてください。それが思い通りに走ったときには楽しさも倍増する
 こと請け合いです。とはいえ、「とにかく遊んでみたい」というせっかち屋さんのため
 に簡単な説明を用意します。
 
- Cabinet} 本体はデータを
-追加・更新を行なう  add}、 upd}、検索を担当する  se} そして
-全データをダンプする  all} の４つのスクリプトから構成されています。
+Cabinet 本体はデータを
+追加・更新を行なう add、upd、検索を担当する se そして
+全データをダンプする all の４つのスクリプトから構成されています。
 これらはそれぞれがが独立して走るようになっており、コマンドラインから直接起動
 させることができます。しかし、コマンドラインからは柔軟な使い方ができる反面、
 シェル変数の設定などをユーザが直接で行わなければなりません。まったくの初心者
 には取付きにくいかもしれません。
 
-このために  Cabinet} はメニュー処理のためのスクリプト  cab} が
+このために Cabinet はメニュー処理のためのスクリプト cab が
 用意されています。シェルについてまったくの初心者はメニューで慣れてから
 移った方が無難でしょう。
 
 
 ### メニューの起動
 
-メニュー処理用のスクリプト  cab} を走らせると  Cabinet} 
+メニュー処理用のスクリプト cab を走らせると Cabinet
 の操作メニューが表示されます。
-\begin{quote}
-	\$ cab
-\end{quote}
+
+    $ cab
+
 とタイプして起動した場合は親シェル（ほとんどの場合はログインシェルでしょう）
-からコピーされてきた変数  CABINET} の内容で指定されたものを操作の対象と
+からコピーされてきた変数 CABINET の内容で指定されたものを操作の対象と
 します。もし、この時に親シェルが  CABINET} という変数を export していな
-かったり、export していても中身が空の場合は  Book} を操作対象として立ち
+かったり、export していても中身が空の場合は Book を操作対象として立ち
 上がります。このメニュー画面で操作できる対象は
-\begin{quote}
-	1. 親シェルが export した変数 CABINET で指定されたもの \\
-	2. Book
-\end{quote}
+
++ 親シェルが export した変数 CABINET で指定されたもの
++ Book
+
 の順となります。
 メニュースクリプト  cab} が起動されると次のような画面が表れます。
-\begin{footnotesize}
-\begin{quote}
-\begin{verbatim}
-Cabinet = Book  68 items
-==================================================
-Would you like to:
 
-      1) Search data in the Cabinet
-      2) Add data to the Cabinet
-      3) List all of the Cabinet
-      4) Change output (current: Display)
-      5) Quit
-==================================================
-                                SELECT (1-5): 
-\end{verbatim}
-\end{quote}
-\end{footnotesize}
+    Cabinet = Book  68 items
+    ==================================================
+    Would you like to:
+    
+          1) Search data in the Cabinet
+          2) Add data to the Cabinet
+          3) List all of the Cabinet
+          4) Change output (current: Display)
+          5) Quit
+    ==================================================
+                                    SELECT (1-5): 
+
 一番上に表示されている "Book  68 items" とは現在開かれている
 （シェル変数 CABINET で指定されている）キャビネットの名称とその中にある
 データ件数です。この Book を対象に検索、追加、表示の操作を行います。
 
-\vspace{15mm}
 
-\fbox{(1) データの検索}
-\begin{quotation}
+#### (1) データの検索
 
 現在開かれているキャビネットから指定されたキーワードを含む項目を表示します。
 "1" を選びリターンキーを押すと
-\begin{footnotesize}
-\begin{quote}
-	[SEARCH] Enter Keyword: 
-\end{quote}
-\end{footnotesize}
+
+    [SEARCH] Enter Keyword: 
+
 と探すためのキーワードを聞いてきます目的のものを指定してください。
 指定するキーワードには一般の語句はもちろん、正規表現を用いることもできます。
 例えば "IBM PC" というタイトルのついた文献を探したければ
-\begin{footnotesize}
-\begin{quote}
-	[SEARCH] Enter Keyword: \underline{IBM PC}
-\end{quote}
-\end{footnotesize}
+
+    [SEARCH] Enter Keyword: \underline{IBM PC}
+
 とタイプし（下線部分）リターンキーを打ちます。
 しばらくすると見つかった項目数とそれらの内容が表示されます。
 もし、表示する内容が１画面に納まらない場合は more がポーズをかけますので、
 スペースで１画面、リターンで１行先に進みます。
-\end{quotation}
 
-\fbox{(2) データの追加}
-\begin{quotation}
+#### (2) データの追加
 
 現在開かれているキャビネットに新しいデータを追加します。
 追加は事前にテキストエディタなどで作っておいたファイルの内容を追加する方法と
 １項目だけ手作業で入力する方法があります。どちらの場合も "2" を選択します。
-\begin{footnotesize}
-\begin{quote}
-	[ADD] Enter filename: 
-\end{quote}
-\end{footnotesize}
+
+    [ADD] Enter filename: 
+
 追加するデータを収めたファイル名を尋ねられますので該当するファイル名を指定して
 ください。ファイル名はパスを含むこともできますし、スペースで区切って複数の
 ファイルを指定することもできます。
@@ -2260,172 +2219,131 @@ Would you like to:
 
 ここで使用している文献データのレコード構造は 「\ref{CAB_DATA}~データ形式」
 (p.\pageref{CAB_DATA}) で説明したものです。例えば
-\begin{footnotesize}
-\begin{quote}
-	[ADD] Enter filename: \underline{b00　../b002}
-\end{quote}
-\end{footnotesize}
+
+    [ADD] Enter filename: \underline{b00　../b002}
+
 と指定するとカレントディレクトリにある b001 というファイルと ../b002 という
 ファイルの内容が文献データに追加されます。
 
 もし、ここでファイル名を入力せずにリターンキーのみを押すと手作業で１件だけ
 データを追加できます。入力内容は既存の検索用ファイルのレコード構造と一致さ
 せてください。手作業の入力は概ねつぎのようになります。
-\begin{footnotesize}
-\begin{quote}
-\begin{verbatim}
-       [ADD] Enter filename:                       <- リターンのみ
-       Type in NEW data
-       Auther -> Andrew S.Tanenbaum
-       Title -> OPERATING SYSTEM DESIGN AND IMPLEMENTATION
-       Publisher -> Prentice-Hall
-       Year -> 1988
-       ISBN -> 0-13-637331-3
-\end{verbatim}
-\end{quote}
-\end{footnotesize}
+
+    [ADD] Enter filename:                       <- リターンのみ
+    Type in NEW data
+    Auther -> Andrew S.Tanenbaum
+    Title -> OPERATING SYSTEM DESIGN AND IMPLEMENTATION
+    Publisher -> Prentice-Hall
+    Year -> 1988
+    ISBN -> 0-13-637331-3
+
 著者、タイトル、出版社、年、ISBN の４項目の入力が完了すると、
 入力されたデータを表示し、確認を求めてきます。
-\begin{footnotesize}
-\begin{quote}
-\begin{verbatim}
-       ----------------------------
-       Auther: Andrew S.Tanenbaum
-       Title: OPERATING SYSTEM DESIGN AND IMPLEMENTATION
-       Publisher: Prentice-Hall
-       Year: 1988
-       ISBN: 0-13-637331-3
-       ----------------------------
-                       Ok? (y/n) 
-\end{verbatim}
-\end{quote}
-\end{footnotesize}
+
+    ----------------------------
+    Auther: Andrew S.Tanenbaum
+    Title: OPERATING SYSTEM DESIGN AND IMPLEMENTATION
+    Publisher: Prentice-Hall
+    Year: 1988
+    ISBN: 0-13-637331-3
+    ----------------------------
+                    Ok? (y/n) 
+
 ここで入力データに間違いがなければ "y" で答えてください。
 "y" の入力でデータが追加され、それ以外のキーならば入力されたデータが捨てら
 れます。
-\end{quotation}
 
 
-\fbox{(3) 全項目の表示}
+#### (3) 全項目の表示
 
-\begin{quotation}
 現在開かれているキャビネットに収められているすべてのデータを表示します。
 ここでは "3" を選択するだけです。画面に表示するときは more が１画面ごとに
 ポーズを入れてきます。「4) Change output」で出力をプリンタ(lpr) に切り換え
 ているならばプリンタに連続出力されます。
-\end{quotation}
 
 
-\fbox{(4) 出力の切り替え}
-\begin{quotation}
+#### (4) 出力の切り替え
 
 検索されたデータと全項目を表示するときの出力先を切り換えます。
 "4" を選択するたびにディスプレイとプリンタをスイッチし、現在の出力先は
-\begin{footnotesize}
-\begin{quote}
-4) Change output(current: Display)
-\end{quote}
-\end{footnotesize}
+
+    4) Change output(current: Display)
+
 として表示されています。
-\end{quotation}
 
 
-\fbox{(5) 終了}
-\begin{quotation}
+#### (5) 終了
+
 メニューを終了し、シェルのコマンドラインに戻ります。
-\end{quotation}
-
 
 
 ### コマンドラインからの使用法
 
-すでに説明したメニューからの操作は  cab} がそれぞれスクリプトを呼び出して
+すでに説明したメニューからの操作は cab がそれぞれスクリプトを呼び出して
 実現しています。それらをコマンドラインから呼び出して直接使うこともできます。
 これらのスクリプトは実行されると操作対象とするキャビネットを決めるために
-必ずシェル変数  CABINET} の内容を参照します。
+必ずシェル変数  CABINET の内容を参照します。
 もし、この変数が export されていなかったり内容が空の場合は正常な処理は期待
 できません。 
 文献データを処理したいのでしたら最初にログインシェルのプロンプトから
-シェル変数  CABINET} に  Book} を設定します。
-
-\begin{footnotesize}
-\begin{quote}
-\$ CABINET=Book; export CABINET
-\end{quote}
-\end{footnotesize}
+シェル変数 CABINET に Book を設定します。
 
 
-\fbox{(1)検索}
-\begin{quotation}
+    $ CABINET=Book; export CABINET
 
-検索をするスクリプトは  se}(SEarch) です。これに検索させたいキーワードを
+#### (1)検索
+
+検索をするスクリプトは  se(SEarch) です。これに検索させたいキーワードを
 引数として与えます。例えば "IBM PC" というものをキーワードとして与えたい場合
 には
-\begin{footnotesize}
-\begin{quote}
-	\$ se 'IBM PC'
-\end{quote}
-\end{footnotesize}
-とします。この時キーワードとして  se} に渡す文字列をシェルから保護するた
+
+    $ se 'IBM PC'
+
+とします。この時キーワードとして se に渡す文字列をシェルから保護するた
 めに必ず単一引用符で囲みます。また、
-\begin{footnotesize}
-\begin{quote}
-	\$ se '.*NIX' \verb/|/ more
-\end{quote}
-\end{footnotesize}
+
+    $ se '.*NIX' \verb/|/ more
+
 などと正規表現を使ったり、検索結果をパイプに流すこともできます。
-\end{quotation}
 
 
-\fbox{(2)追加}
-\begin{quotation}
 
- add} というスクリプトが担当します。
+#### (2)追加
+
+add というスクリプトが担当します。
 追加したいデータが入っているファイル名を引数として与えます。
 例えば /user/mybooks というファイルに追加したいデータが入っているとすると
-\begin{footnotesize}
-\begin{quote}
-	\$ add /user/mybooks
-\end{quote}
-\end{footnotesize}
+
+    $ add /user/mybooks
+
 とします。引数として与えるファイル名は１つに限りませんが、指定したファイル
 すべてが見つからない場合はエラー中断しますのでデータの追加は行われません。
 
 もし、引数を与えなかった場合は１件のみを手作業で入力するように動作します。
 手作業入力の具体的な例は「メニューからの操作」部分を参照してください。
-\end{quotation}
 
+#### (3)全表示
 
-\fbox{(3)全表示}
-\begin{quotation}
-
-スクリプト  all} を走らせると登録されているすべての項目を表示します。
+スクリプト all を走らせると登録されているすべての項目を表示します。
 すべての項目をプリンタに送りたい場合は
-\begin{footnotesize}
-\begin{quote}
-	\$ all \verb/|/ lpr
-\end{quote}
-\end{footnotesize}
+
+    $ all \verb/|/ lpr
+
 とすれば良いでしょう。画面で見たいのでしたら more にパイプでつないでください。
-\end{quotation}
 
 
-\fbox{(4)更新}
-\begin{quotation}
+#### (4)更新
+
 
 人間が入力したデータからキャビネットを構成するスクリプト類が操作しやすい形に
 変換し、検索用のデータを更新します。引数なしで
-\begin{footnotesize}
-\begin{quote}
-	\$ upd
-\end{quote}
-\end{footnotesize}
-とするだけです。なお、\underline{このスクリプトは最初に１度だけ使う}ものです。
-あとは  add} で\underline{データを追加すると自動的に  upd} が呼び出されます}。
-\end{quotation}
 
-%----------------------------------------------
-\newpage
+    $ upd
+
+とするだけです。なお、 _ このスクリプトは最初に１度だけ使う _ ものです。
+あとは add で _ データを追加すると自動的に  upd _  が呼び出されます。
+
+
 ##  Cabinetの拡張
 
 Cabinet には不必要になったデータを削除するためのスクリプトがありません。
@@ -2441,17 +2359,14 @@ Cabinet には不必要になったデータを削除するためのスクリプ
 ません。また、この Cabinet は文献ファイルをアクセスする時に排他制御も行なって
 いませんのでこちらも試してみてください。
 
-\vspace{8cm}
-\begin{thebibliography}{9}
-\item
-平林浩一/平林小枝子 \\
-UNIXのバックグラウンド.　プロセッサNo.64 Aug 1990.　技術評論社
+##  Bibliography
 
-\item
-S.R. Bourne/三好・木下訳 \\
-UNIXシステム.　マイクロソフトウェア
+    平林浩一/平林小枝子
+    UNIXのバックグラウンド.　プロセッサNo.64 Aug 1990.　技術評論社
 
-\item
-\copyright1987 Andrew S.Tanenbaum,　Prentice Hall \\
-minix 1.6.24B, shell ソース・リスト \\
-\end{thebibliography}
+    S.R. Bourne/三好・木下訳 
+    UNIXシステム.　マイクロソフトウェア
+
+    \copyright1987 Andrew S.Tanenbaum,　Prentice Hall 
+    minix 1.6.24B, shell ソース・リスト 
+
