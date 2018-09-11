@@ -17,3 +17,7 @@
 以下となります。
 
 - [Bourne shell 自習テキスト](https://github.com/yamanetoshi/BashSelfStudyText/blob/master/sh-text.md)
+
+see below.
+- [BashStudyText-Asciidoc](https://github.com/yamanetoshi/BashSelfStudyText-Asciidoc)
+
